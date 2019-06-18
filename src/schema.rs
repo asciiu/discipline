@@ -89,9 +89,9 @@ impl Mutation {
         //let human: Human = db.insert_human(&new_human)?;
         let human = Human{
             id: String::from("123"),
-            name: String::from("Luke"),
-            appears_in: vec![Episode::NewHope],
-            home_planet: String::from("hoth"),
+            name: new_human.name,
+            appears_in: new_human.appears_in,
+            home_planet: new_human.home_planet,
         };
 
 
