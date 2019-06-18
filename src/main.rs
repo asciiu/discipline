@@ -1,7 +1,7 @@
 
 extern crate futures;
 extern crate hyper;
-#[macro_use]
+//#[macro_use]
 extern crate juniper;
 extern crate juniper_hyper;
 extern crate pretty_env_logger;
@@ -14,14 +14,14 @@ use hyper::rt::{self, Future};
 use hyper::service::service_fn;
 use hyper::Method;
 use hyper::{Body, Response, Server, StatusCode};
-use model::Database;
+//use model::Database;
 use schema::Query;
 use schema::Schema;
 use schema::Mutation;
 //use juniper::tests::model::Database;
 //use juniper::tests::schema::Query;
-use juniper::EmptyMutation;
-use juniper::RootNode;
+//use juniper::EmptyMutation;
+//use juniper::RootNode;
 use std::sync::Arc;
 
 fn main() {
@@ -38,7 +38,7 @@ fn main() {
         let root_node = root_node.clone();
         let ctx = db.clone();
         //let ctx = schema::Context{};
-        service_fn(move |req| -> Box<Future<Item = _, Error = _> + Send> {
+        service_fn(move |req| -> Box<dyn Future<Item = _, Error = _> + Send> {
             let root_node = root_node.clone();
             let ctx = ctx.clone();
             match (req.method(), req.uri().path()) {
