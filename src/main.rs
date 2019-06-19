@@ -1,42 +1,55 @@
 
+extern crate diesel;
+extern crate dotenv;
 extern crate futures;
 extern crate hyper;
+extern crate discipline;
 //#[macro_use]
 extern crate juniper;
 extern crate juniper_hyper;
 extern crate pretty_env_logger;
 
-mod schema;
-mod model;
+pub mod graphql;
+//pub mod schema;
 
 use futures::future;
+use graphql::{Mutation, Query, Schema};
 use hyper::rt::{self, Future};
 use hyper::service::service_fn;
-use hyper::Method;
-use hyper::{Body, Response, Server, StatusCode};
-//use model::Database;
-use schema::Query;
-use schema::Schema;
-use schema::Mutation;
-//use juniper::tests::model::Database;
-//use juniper::tests::schema::Query;
-//use juniper::EmptyMutation;
-//use juniper::RootNode;
+use hyper::{Body, Method, Response, Server, StatusCode};
 use std::sync::Arc;
+use discipline::*;
+use self::diesel::prelude::*;
+
+use models::*;
+//use schema::users::dsl::*;
 
 fn main() {
+    use discipline::schema::users::dsl::*;
+    let connection = establish_connection();
+    let results = users
+        .limit(5)
+        .load::<User>(&connection)
+        .expect("Error loading users");
+
+    println!("Displaying {} users", results.len());
+    for user in results {
+        println!("{}", user.username);
+        println!("{}", user.email);
+    }
+
     pretty_env_logger::init();
 
     let addr = ([127, 0, 0, 1], 3000).into();
 
-    let cx = schema::Context{};
-    let db = Arc::new(cx);
+    let cx = graphql::Context{};
+    let context = Arc::new(cx);
     //let root_node = Arc::new(RootNode::new(Query, EmptyMutation::<Database>::new()));
     let root_node = Arc::new(Schema::new(Query, Mutation));
 
     let new_service = move || {
         let root_node = root_node.clone();
-        let ctx = db.clone();
+        let ctx = context.clone();
         //let ctx = schema::Context{};
         service_fn(move |req| -> Box<dyn Future<Item = _, Error = _> + Send> {
             let root_node = root_node.clone();
