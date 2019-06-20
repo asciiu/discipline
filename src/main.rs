@@ -27,6 +27,9 @@ use models::*;
 fn main() {
     use discipline::schema::users::dsl::*;
     let connection = establish_connection();
+    //let user = create_user(&connection, "flowy", "flow@email", "password");
+    //println!("{}", user.id);
+
     let results = users
         .limit(5)
         .load::<User>(&connection)
@@ -36,6 +39,12 @@ fn main() {
     for user in results {
         println!("{}", user.username);
         println!("{}", user.email);
+        println!("{}", user.created_on);
+        println!("{}", user.updated_on);
+        match user.deleted_on {
+            None => println!("not deleted"),
+            Some(date) => println!("{}", date),
+        }
     }
 
     pretty_env_logger::init();
