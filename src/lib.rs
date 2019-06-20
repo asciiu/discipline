@@ -6,6 +6,7 @@ extern crate uuid;
 pub mod models;
 pub mod schema;
 
+use bcrypt::hash;
 use diesel::prelude::*;
 use dotenv::dotenv;
 use models::{NewUser, User};
@@ -24,14 +25,21 @@ pub fn establish_connection() -> PgConnection {
 pub fn create_user<'a>(conn: &PgConnection, 
                        username: &'a str, 
                        email: &'a str, 
-                       password_hash: &'a str) -> User {
+                       password: &'a str) -> User {
     use schema::users;
+
+    let hashed: String = match hash(password, 9) {
+        Ok(result) => result,
+        Err(error) => {
+            panic!("there was an error while hashing a password: {:?}", error)
+        },
+    };
 
     let new_user = NewUser {
         id: Uuid::new_v4(),
         email: email,
         username: username,
-        password_hash: password_hash,
+        password_hash: &hashed,
     };
 
     diesel::insert_into(users::table)

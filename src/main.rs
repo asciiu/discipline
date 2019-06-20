@@ -27,8 +27,8 @@ use models::*;
 fn main() {
     use discipline::schema::users::dsl::*;
     let connection = establish_connection();
-    //let user = create_user(&connection, "flowy", "flow@email", "password");
-    //println!("{}", user.id);
+    let user = create_user(&connection, "flowy", "flow@email", "password");
+    println!("{}", user.id);
 
     let results = users
         .limit(5)
