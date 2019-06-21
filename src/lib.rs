@@ -7,11 +7,14 @@ pub mod models;
 pub mod schema;
 
 use bcrypt::hash;
-use diesel::prelude::*;
+use diesel::{prelude::*, r2d2::ConnectionManager};
 use dotenv::dotenv;
 use models::{NewUser, User};
 use std::env;
 use uuid::Uuid;
+
+pub type DbConPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+pub type DbCon = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -21,6 +24,16 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url))
 }
+
+pub fn db_pool() -> DbConPool {
+    dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    r2d2::Pool::builder()
+        .max_size(10)
+        .build(ConnectionManager::<PgConnection>::new(database_url))
+        .expect("failed to create db connection pool")
+}
+
 
 pub fn create_user<'a>(conn: &PgConnection, 
                        username: &'a str, 

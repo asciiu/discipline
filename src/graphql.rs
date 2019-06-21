@@ -1,4 +1,5 @@
 use juniper::{FieldResult};
+use crate::DbConPool;
 
 #[derive(juniper::GraphQLEnum)]
 enum Episode {
@@ -33,7 +34,8 @@ struct NewHuman {
 
 pub struct Context {
     // Use your real database pool here.
-    //pool: DatabasePool,
+    //conn: std::sync::Arc<PgConnection>,
+    pub pool: DbConPool,
 }
 
 // To make our context usable by Juniper, we have to implement a marker trait.
