@@ -28,12 +28,7 @@ pub fn create_user<'a>(conn: &PgConnection,
                        password: &'a str) -> User {
     use schema::users;
 
-    let hashed: String = match hash(password, 9) {
-        Ok(result) => result,
-        Err(error) => {
-            panic!("there was an error while hashing a password: {:?}", error)
-        },
-    };
+    let hashed: String = hash(password, 9).expect("failed to hash password in create_user"); 
 
     let new_user = NewUser {
         id: Uuid::new_v4(),
