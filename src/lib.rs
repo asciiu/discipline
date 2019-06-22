@@ -38,7 +38,7 @@ pub fn db_pool() -> DbConPool {
 pub fn create_user<'a>(conn: &PgConnection, 
                        username: &'a str, 
                        email: &'a str, 
-                       password: &'a str) -> User {
+                       password: &'a str) -> Result<User, diesel::result::Error> {
     use schema::users;
 
     let hashed: String = hash(password, 9).expect("failed to hash password in create_user"); 
@@ -53,5 +53,4 @@ pub fn create_user<'a>(conn: &PgConnection,
     diesel::insert_into(users::table)
         .values(&new_user)
         .get_result(conn)
-        .expect("Error saving new user")
 }

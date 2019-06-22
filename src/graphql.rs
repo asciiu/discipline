@@ -84,8 +84,10 @@ pub struct Mutation;
 impl Mutation {
     fn createUser(context: &Context, new_user: NewUser) -> FieldResult<models::User> {
         let conn = context.pool.get().unwrap();
-        let user = create_user(&conn, &new_user.username, &new_user.email, &new_user.password);
-        Ok(user)
+        match create_user(&conn, &new_user.username, &new_user.email, &new_user.password) {
+            Ok(user) => Ok(user),
+            Err(e) => Err(e)?
+        }
     }
 }
 
