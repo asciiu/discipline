@@ -3,7 +3,6 @@ extern crate diesel;
 extern crate dotenv;
 extern crate futures;
 extern crate hyper;
-//extern crate discipline;
 //#[macro_use]
 extern crate juniper;
 extern crate juniper_hyper;

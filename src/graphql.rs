@@ -39,7 +39,6 @@ pub struct Context {
     pub pool: DbConPool,
 }
 
-// To make our context usable by Juniper, we have to implement a marker trait.
 impl juniper::Context for Context {}
 
 pub struct Query;
@@ -77,26 +76,15 @@ impl Query {
     }
 }
 
-// Now, we do the same for our Mutation type.
-
 pub struct Mutation;
 
 #[juniper::object(
     Context = Context,
 )]
 impl Mutation {
-
     fn createUser(context: &Context, new_user: NewUser) -> FieldResult<models::User> {
         let conn = context.pool.get().unwrap();
         let user = create_user(&conn, &new_user.username, &new_user.email, &new_user.password);
-        //let db = executor.context().pool.get_connection()?;
-        //let human: Human = db.insert_human(&new_human)?;
-        //let human = Human{
-        //    id: String::from("123"),
-        //    name: new_human.name,
-        //    appears_in: new_human.appears_in,
-        //    home_planet: new_human.home_planet,
-        //};
         Ok(user)
     }
 }
