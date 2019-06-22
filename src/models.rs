@@ -2,6 +2,7 @@ use uuid::Uuid;
 use chrono::{NaiveDateTime};
 use crate::schema::users;
 
+#[derive(juniper::GraphQLObject)]
 #[derive(Queryable)]
 pub struct User {
     pub id: Uuid,

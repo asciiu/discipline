@@ -9,11 +9,11 @@ edition = "2018"
 [dependencies]
 bcrypt = "0.4"
 chrono = "0.4.6"
-diesel = { version = "1.4.2", features = ["postgres", "uuid", "chrono", "r2d2"] }
+diesel = { version = "1.4.2", features = ["postgres", "uuidv07", "chrono", "r2d2"] }
 dotenv = "0.9.0"
 futures = "0.1"
 hyper = "0.12"
-juniper = "0.12.0"
+juniper = "0.12" 
 juniper_hyper = "0.3.0"
 pretty_env_logger = "0.2"
 r2d2 = "0.8.5"
@@ -23,5 +23,5 @@ serde_derive = "1.0"
 tokio = "0.1.8"
 tokio-threadpool = "0.1.7"
 url = "1.7"
-uuid = { version = "0.6", features = ["serde", "v4"] }
+uuid = { version = "0.7", features = ["serde", "v4"] }
 

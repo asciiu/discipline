@@ -1,5 +1,7 @@
 use juniper::{FieldResult};
 use crate::DbConPool;
+use crate::create_user;
+use crate::models;
 
 #[derive(juniper::GraphQLEnum)]
 enum Episode {
@@ -18,13 +20,12 @@ struct Human {
 }
 
 // There is also a custom derive for mapping GraphQL input objects.
-
 #[derive(juniper::GraphQLInputObject)]
-#[graphql(description="A humanoid creature in the Star Wars universe")]
-struct NewHuman {
-    name: String,
-    appears_in: Vec<Episode>,
-    home_planet: String,
+#[graphql(description="New user")]
+struct NewUser {
+    username: String,
+    email: String,
+    password: String,
 }
 
 // Now, we create our root Query and Mutation types with resolvers by using the
@@ -85,19 +86,18 @@ pub struct Mutation;
 )]
 impl Mutation {
 
-    fn createHuman(context: &Context, new_human: NewHuman) -> FieldResult<Human> {
+    fn createUser(context: &Context, new_user: NewUser) -> FieldResult<models::User> {
+        let conn = context.pool.get().unwrap();
+        let user = create_user(&conn, &new_user.username, &new_user.email, &new_user.password);
         //let db = executor.context().pool.get_connection()?;
         //let human: Human = db.insert_human(&new_human)?;
-        let human = Human{
-            id: String::from("123"),
-            name: new_human.name,
-            appears_in: new_human.appears_in,
-            home_planet: new_human.home_planet,
-        };
-
-
-
-        Ok(human)
+        //let human = Human{
+        //    id: String::from("123"),
+        //    name: new_human.name,
+        //    appears_in: new_human.appears_in,
+        //    home_planet: new_human.home_planet,
+        //};
+        Ok(user)
     }
 }
 
