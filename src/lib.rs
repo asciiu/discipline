@@ -36,8 +36,8 @@ pub fn db_pool() -> DbConPool {
 
 
 pub fn create_user<'a>(conn: &PgConnection, 
-                       username: &'a str, 
                        email: &'a str, 
+                       username: &'a str, 
                        password: &'a str) -> Result<User, diesel::result::Error> {
     use schema::users;
 

@@ -19,15 +19,6 @@ struct Human {
     home_planet: String,
 }
 
-// There is also a custom derive for mapping GraphQL input objects.
-#[derive(juniper::GraphQLInputObject)]
-#[graphql(description="New user")]
-struct NewUser {
-    username: String,
-    email: String,
-    password: String,
-}
-
 // Now, we create our root Query and Mutation types with resolvers by using the
 // object macro.
 // Objects can have contexts that allow accessing shared state like a database
@@ -82,9 +73,9 @@ pub struct Mutation;
     Context = Context,
 )]
 impl Mutation {
-    fn createUser(context: &Context, new_user: NewUser) -> FieldResult<models::User> {
+    fn signup(context: &Context, email: String, username: String, password: String) -> FieldResult<models::User> {
         let conn = context.pool.get().unwrap();
-        match create_user(&conn, &new_user.username, &new_user.email, &new_user.password) {
+        match create_user(&conn, &email, &username, &password) {
             Ok(user) => Ok(user),
             Err(e) => Err(e)?
         }
