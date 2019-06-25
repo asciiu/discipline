@@ -2,6 +2,7 @@ use juniper::{FieldResult};
 use crate::DbConPool;
 use crate::create_user;
 use crate::models;
+use diesel::prelude::*;
 
 #[derive(juniper::GraphQLEnum)]
 enum Episode {
@@ -73,11 +74,35 @@ pub struct Mutation;
     Context = Context,
 )]
 impl Mutation {
+
     fn signup(context: &Context, email: String, username: String, password: String) -> FieldResult<models::User> {
         let conn = context.pool.get().unwrap();
         match create_user(&conn, &email, &username, &password) {
             Ok(user) => Ok(user),
             Err(e) => Err(e)?
+        }
+    }
+
+    fn login(context: &Context, email: String, username: String, password: String) -> FieldResult<models::User> {
+        use crate::schema::users::dsl;
+        use bcrypt::verify;
+
+        let conn = context.pool.get().unwrap();
+        let user = dsl::users
+                   .filter(dsl::email.eq(email))
+                   .first::<models::User>(&conn)
+                   .optional()?;
+        
+        match user {
+            Some(u) => {
+                match verify(&password, &u.password_hash) {
+                    Ok(r) if r => {
+                      Ok(u)
+                    }
+                    _ => Err("incorrect email/password")?
+                }
+            },
+            _ => Err("incorrect email/password")?
         }
     }
 }
