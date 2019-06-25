@@ -18,34 +18,8 @@ use hyper::service::service_fn;
 use hyper::{Body, Method, Response, Server, StatusCode};
 use std::sync::Arc;
 use discipline::*;
-//use self::diesel::prelude::*;
-
-//use models::*;
-//use schema::users::dsl::*;
 
 fn main() {
-    //use discipline::schema::users::dsl::*;
-    //let connection = establish_connection();
-    //let user = create_user(&connection, "flowy", "flow@email", "password");
-    //println!("{}", user.id);
-
-    //let results = users
-    //    .limit(5)
-    //    .load::<User>(&connection)
-    //    .expect("Error loading users");
-
-    //println!("Displaying {} users", results.len());
-    //for user in results {
-    //    println!("{}", user.username);
-    //    println!("{}", user.email);
-    //    println!("{}", user.created_on);
-    //    println!("{}", user.updated_on);
-    //    match user.deleted_on {
-    //        None => println!("not deleted"),
-    //        Some(date) => println!("{}", date),
-    //    }
-    //}
-
     pretty_env_logger::init();
 
     let addr = ([127, 0, 0, 1], 3000).into();

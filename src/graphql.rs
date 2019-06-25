@@ -83,7 +83,7 @@ impl Mutation {
         }
     }
 
-    fn login(context: &Context, email: String, username: String, password: String) -> FieldResult<models::User> {
+    fn login(context: &Context, email: String, password: String, remember: bool) -> FieldResult<models::User> {
         use crate::schema::users::dsl;
         use bcrypt::verify;
 
@@ -97,12 +97,15 @@ impl Mutation {
             Some(u) => {
                 match verify(&password, &u.password_hash) {
                     Ok(r) if r => {
-                      Ok(u)
+                        // TODO create jwt
+                        // TODO create refresh token
+                        Ok(u)
                     }
                     _ => Err("incorrect email/password")?
+
                 }
             },
-            _ => Err("incorrect email/password")?
+            None => Err("incorrect email/password")?
         }
     }
 }
