@@ -9,8 +9,6 @@ extern crate juniper;
 extern crate juniper_hyper;
 extern crate pretty_env_logger;
 
-#[macro_use] 
-extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
@@ -21,7 +19,7 @@ use graphql::{Mutation, Query, Schema};
 use hyper::rt::{self, Future};
 use hyper::service::service_fn;
 use hyper::{Body, Method, Response, Server, StatusCode};
-use jwt::{encode, decode, Header, Algorithm, Validation};
+use jwt::{encode, decode, Header, Validation};
 use std::sync::Arc;
 use discipline::*;
 
@@ -39,7 +37,7 @@ fn main() {
     dotenv::dotenv().ok();
     let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
     let my_claims =
-        Claims { sub: "b@b.com".to_owned(), company: "ACME".to_owned(), exp: 10000000000 };
+        Claims { sub: "b@b.com".to_owned(), company: "ACME".to_owned(), exp: 1561518577 };
     let token = match encode(&Header::default(), &my_claims, secret.as_ref()) {
         Ok(t) => t,
         Err(_) => panic!("could not encode jwt"),
@@ -50,6 +48,7 @@ fn main() {
         Err(err) => match *err.kind() {
             jwt::errors::ErrorKind::InvalidToken => panic!("Token is invalid"), // Example on how to handle a specific error
             jwt::errors::ErrorKind::InvalidIssuer => panic!("Issuer is invalid"), // Example on how to handle a specific error
+            jwt::errors::ErrorKind::ExpiredSignature => panic!("token expired"),
             _ => panic!("Some other errors"),
         },
     };
