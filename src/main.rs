@@ -1,6 +1,7 @@
 
 extern crate diesel;
 extern crate dotenv;
+extern crate frank_jwt;
 extern crate futures;
 extern crate hyper;
 //#[macro_use]
@@ -8,9 +9,13 @@ extern crate juniper;
 extern crate juniper_hyper;
 extern crate pretty_env_logger;
 
+#[macro_use] 
+extern crate serde_json;
+
 pub mod graphql;
 //pub mod schema;
 
+use frank_jwt::{Algorithm, encode, decode};
 use futures::future;
 use graphql::{Mutation, Query, Schema};
 use hyper::rt::{self, Future};
@@ -21,6 +26,26 @@ use discipline::*;
 
 fn main() {
     pretty_env_logger::init();
+
+    let payload = json!({
+        "userID": "12345",
+    });
+    
+    dotenv::dotenv().ok();
+    let header = json!({});
+    let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
+    let jwt = encode(header, &secret, &payload, Algorithm::HS256);
+    match jwt {
+        Ok(token) => {
+            println!("{}", token);
+            match decode(&token, &secret, Algorithm::HS256) {
+                Ok(json) => println!("userID: {}", json.1["userID"]),
+                _ => println!("could not decode jwt"),
+            }
+        }
+        _ => println!("no tokie"),
+    };
+
 
     let addr = ([127, 0, 0, 1], 3000).into();
     let cx = graphql::Context{pool: db_pool()};
