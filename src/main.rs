@@ -1,9 +1,9 @@
 
 extern crate diesel;
 extern crate dotenv;
-extern crate frank_jwt;
 extern crate futures;
 extern crate hyper;
+extern crate jsonwebtoken as jwt;
 //#[macro_use]
 extern crate juniper;
 extern crate juniper_hyper;
@@ -11,41 +11,50 @@ extern crate pretty_env_logger;
 
 #[macro_use] 
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 
 pub mod graphql;
-//pub mod schema;
 
-use frank_jwt::{Algorithm, encode, decode};
 use futures::future;
 use graphql::{Mutation, Query, Schema};
 use hyper::rt::{self, Future};
 use hyper::service::service_fn;
 use hyper::{Body, Method, Response, Server, StatusCode};
+use jwt::{encode, decode, Header, Algorithm, Validation};
 use std::sync::Arc;
 use discipline::*;
+
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    sub: String,
+    company: String,
+    exp: usize,
+}
 
 fn main() {
     pretty_env_logger::init();
 
-    let payload = json!({
-        "userID": "12345",
-    });
-    
     dotenv::dotenv().ok();
-    let header = json!({});
     let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
-    let jwt = encode(header, &secret, &payload, Algorithm::HS256);
-    match jwt {
-        Ok(token) => {
-            println!("{}", token);
-            match decode(&token, &secret, Algorithm::HS256) {
-                Ok(json) => println!("userID: {}", json.1["userID"]),
-                _ => println!("could not decode jwt"),
-            }
-        }
-        _ => println!("no tokie"),
+    let my_claims =
+        Claims { sub: "b@b.com".to_owned(), company: "ACME".to_owned(), exp: 10000000000 };
+    let token = match encode(&Header::default(), &my_claims, secret.as_ref()) {
+        Ok(t) => t,
+        Err(_) => panic!("could not encode jwt"),
     };
-
+    let validation = Validation { sub: Some("b@b.com".to_string()), ..Validation::default() };
+    let token_data = match decode::<Claims>(&token, secret.as_ref(), &validation) {
+        Ok(c) => c,
+        Err(err) => match *err.kind() {
+            jwt::errors::ErrorKind::InvalidToken => panic!("Token is invalid"), // Example on how to handle a specific error
+            jwt::errors::ErrorKind::InvalidIssuer => panic!("Issuer is invalid"), // Example on how to handle a specific error
+            _ => panic!("Some other errors"),
+        },
+    };
+    println!("{:?}", token_data.claims);
+    println!("{:?}", token_data.header);
 
     let addr = ([127, 0, 0, 1], 3000).into();
     let cx = graphql::Context{pool: db_pool()};
