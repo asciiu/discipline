@@ -1,6 +1,16 @@
 use uuid::Uuid;
 use chrono::{NaiveDateTime};
 use crate::schema::users;
+use serde_derive::{Serialize, Deserialize};
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub id: String,
+    pub sub: String,
+    pub company: String,
+    pub exp: usize,
+}
 
 #[derive(juniper::GraphQLObject)]
 #[derive(Queryable)]
@@ -22,4 +32,10 @@ pub struct NewUser<'a> {
     pub email: &'a str,
     pub username: &'a str,
     pub password_hash: &'a str,
+}
+
+#[derive(juniper::GraphQLObject)]
+pub struct Token {
+	pub jwt: String,
+    pub refresh: String,
 }

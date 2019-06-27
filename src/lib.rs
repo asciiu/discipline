@@ -1,15 +1,18 @@
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+extern crate jsonwebtoken as jwt;
 extern crate uuid;
 
 pub mod models;
 pub mod schema;
 
+
 use bcrypt::hash;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use dotenv::dotenv;
-use models::{NewUser, User};
+use jwt::{encode, decode, Header, Validation};
+use models::{Claims, NewUser, User};
 use std::env;
 use uuid::Uuid;
 
@@ -34,6 +37,31 @@ pub fn db_pool() -> DbConPool {
         .expect("failed to create db connection pool")
 }
 
+pub fn create_jwt(id: &str) -> String {
+    dotenv().ok();
+    let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
+    let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT duration not set");
+    let hrs = hrs.parse::<u64>().unwrap();
+    let now = std::time::SystemTime::now();
+    let since_the_epoch = now.duration_since(std::time::UNIX_EPOCH)
+        .expect("Time went backwards");
+    let my_claims =
+        Claims { 
+            id: id.to_owned(),
+            sub: "flow.com".to_owned(), 
+            company: "flow".to_owned(), 
+            exp: (since_the_epoch.as_secs() * hrs *  3600) as usize
+        };
+        
+    encode(&Header::default(), &my_claims, secret.as_ref()).unwrap()
+}
+
+pub fn validate_jwt(token: String) -> jwt::errors::Result<jwt::TokenData<Claims>> {
+    dotenv().ok();
+    let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
+    let validation = Validation { sub: Some("flow.com".to_string()), ..Validation::default() };
+    decode::<models::Claims>(&token, secret.as_ref(), &validation) 
+}
 
 pub fn create_user<'a>(conn: &PgConnection, 
                        email: &'a str, 
