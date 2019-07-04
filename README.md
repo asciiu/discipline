@@ -1,6 +1,6 @@
-# Flowy's Castle 
+# Flowii's Castle 
 
-Welcome to Floy's Castle. I am what I think.
+Welcome to Flowii's Castle. I am what I think.
 
 ## Getting Started
 
@@ -48,7 +48,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Authors
 
-* **Flow's Castle** 
+* **Flowii's Castle** 
 
 ## License
 
@@ -59,4 +59,4 @@ Use at your own risk!
 * Me 
 * Myself 
 * I
-* Special thanks to Flow's Castle and fans
+* Special thanks to Flowii's Castle and fans
