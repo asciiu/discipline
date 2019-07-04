@@ -1,4 +1,4 @@
-# Project Title
+# Flowy's Castle 
 
 Welcome to Floy's Castle. I am what I think.
 
@@ -10,8 +10,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 Rust v1.37 or better and Postgres v10.
 
-Install Rust. https://doc.rust-lang.org/book/ch01-01-installation.html
-Install Diesel. https://diesel.rs/guides/getting-started/ 
+* Install Rust. https://doc.rust-lang.org/book/ch01-01-installation.html
+* Install Diesel. https://diesel.rs/guides/getting-started/ 
 
 ### Environment setup 
 
