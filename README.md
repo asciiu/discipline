@@ -1,6 +1,6 @@
 # Flowii's Castle 
 
-Welcome to Flowii's Castle. I am what I think.
+Welcome to Flowii's Castle. I am what I think. If you've come this far, I see you Bean Optimus!
 
 ## Getting Started
 
