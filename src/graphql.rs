@@ -3,6 +3,7 @@ use crate::DbConPool;
 use crate::create_user;
 use crate::models;
 use diesel::prelude::*;
+use discipline::*;
 
 #[derive(juniper::GraphQLEnum)]
 enum Episode {
@@ -83,7 +84,7 @@ impl Mutation {
         }
     }
 
-    fn login(context: &Context, email: String, password: String, remember: bool) -> FieldResult<models::User> {
+    fn login(context: &Context, email: String, password: String, remember: bool) -> FieldResult<models::AuthToken> {
         use crate::schema::users::dsl;
         use bcrypt::verify;
 
@@ -96,10 +97,14 @@ impl Mutation {
         match user {
             Some(u) => {
                 match verify(&password, &u.password_hash) {
-                    Ok(r) if r => {
+                    Ok(is_valid) if is_valid => {
+                        let tokies = models::AuthToken{
+                            jwt: create_jwt(&u.id.to_string()),
+                            refresh: String::from("refresh token"),
+                        };
                         // TODO create jwt
                         // TODO create refresh token
-                        Ok(u)
+                        Ok(tokies)
                     }
                     _ => Err("incorrect email/password")?
 

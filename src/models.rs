@@ -35,7 +35,7 @@ pub struct NewUser<'a> {
 }
 
 #[derive(juniper::GraphQLObject)]
-pub struct Token {
+pub struct AuthToken {
 	pub jwt: String,
     pub refresh: String,
 }
