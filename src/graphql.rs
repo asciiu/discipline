@@ -98,10 +98,14 @@ impl Mutation {
             Some(u) => {
                 match verify(&password, &u.password_hash) {
                     Ok(is_valid) if is_valid => {
-                        let tokies = models::AuthToken{
+                        let mut tokies = models::AuthToken{
                             jwt: create_jwt(&u.id.to_string()),
-                            refresh: String::from("refresh token"),
+                            refresh: String::from(""),
                         };
+
+                        if remember {
+                          tokies.refresh = String::from("refresh token");
+                        }
                         // TODO create jwt
                         // TODO create refresh token
                         Ok(tokies)
