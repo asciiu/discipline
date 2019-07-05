@@ -20,8 +20,30 @@ use std::sync::Arc;
 use discipline::*;
 
 
+// redis example
+extern crate redis;
+use redis::Commands;
+
+fn example_redis() -> redis::RedisResult<isize> {
+    // connect to redis
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let con = client.get_connection()?;
+    // throw away the result, just make sure it does not fail
+    let _ : () = con.set("my_key", 42)?;
+    // read back the key and return it.  Because the return value
+    // from the function is a result for integer this will automatically
+    // convert into one.
+    con.get("my_key")
+}
+
+
 fn main() {
     pretty_env_logger::init();
+
+    match example_redis() {
+        Ok(r) => println!("{}", r),
+        Err(_) => println!("nope"),
+    }
 
     // let token = create_jwt("test");
     // println!("{}: ", token);
