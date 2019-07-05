@@ -25,6 +25,16 @@ pub struct User {
     pub deleted_on: Option<NaiveDateTime>,
 }
 
+#[derive(Queryable)]
+pub struct RefreshToken {
+	pub id: String,
+	pub user_id: String,
+	pub selector: String,
+	pub authenticator: String,
+	pub token_hash: String,
+	pub expires_on: NaiveDateTime ,
+}
+
 #[derive(Insertable)]
 #[table_name="users"]
 pub struct NewUser<'a> {

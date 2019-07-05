@@ -20,12 +20,17 @@ Rust v1.37 or better and Postgres v10.
 ```
 DATABASE_URL=postgres://localhost/discipline
 JWT_SECRET="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-JWT_EXPIRE_HR=
+JWT_EXPIRE_HR=2
 ```
 
 2. Next run the DB migration.
 ```
 diesel migration run
+```
+
+3. Run the service
+```
+cargo run
 ```
 
 ## Running the tests
