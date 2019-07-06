@@ -13,8 +13,6 @@ use uuid::Uuid;
 pub fn create_jwt(id: &str, expire_hrs: u64) -> String {
     dotenv().ok();
     let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET not set");
-    //let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT_EXPIRE_HR not set");
-    //let hrs = hrs.parse::<u64>().unwrap();
     let now = std::time::SystemTime::now();
     let since_the_epoch = now.duration_since(std::time::UNIX_EPOCH)
         .expect("Time went backwards");
@@ -30,11 +28,14 @@ pub fn create_jwt(id: &str, expire_hrs: u64) -> String {
     jwt::encode(&jwt::Header::default(), &my_claims, secret.as_ref()).unwrap()
 }
 
-pub fn validate_jwt(token: String) -> jwt::errors::Result<jwt::TokenData<Claims>> {
+pub fn validate_jwt(token: &str) -> jwt::errors::Result<jwt::TokenData<Claims>> {
     dotenv().ok();
     let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET not set");
-    let validation = jwt::Validation { sub: Some("flow.com".to_string()), ..jwt::Validation::default() };
-    jwt::decode::<Claims>(&token, secret.as_ref(), &validation) 
+    let validation = jwt::Validation { 
+        sub: Some("flow.com".to_string()), 
+        ..jwt::Validation::default() 
+    };
+    jwt::decode::<Claims>(token, secret.as_ref(), &validation) 
 }
 
 #[derive(juniper::GraphQLObject)]
@@ -110,7 +111,7 @@ mod tests {
     #[test]
     fn le_jwt() {
         let token = create_jwt("test", 1);
-        let token_data = match validate_jwt(token) {
+        let token_data = match validate_jwt(&token) {
             Ok(c) => c,
             Err(err) => match *err.kind() {
                 jwt::errors::ErrorKind::InvalidToken => panic!("Token is invalid"), // Example on how to handle a specific error
@@ -127,7 +128,7 @@ mod tests {
     #[test]
     fn expired_jwt() {
         let token = create_jwt("test", 0);
-        let err = validate_jwt(token).expect_err("expected invalid expired token");
+        let err = validate_jwt(&token).expect_err("expected invalid expired token");
         let is_expired = match *err.kind() {
             // example of handling specific errors
             jwt::errors::ErrorKind::InvalidToken => false,
