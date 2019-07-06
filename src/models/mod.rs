@@ -1,17 +1,8 @@
 use crate::schema::users;
 use chrono::{NaiveDateTime};
-use serde_derive::{Serialize, Deserialize};
 use uuid::Uuid;
 
 pub mod auth;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub id: String,
-    pub sub: String,
-    pub company: String,
-    pub exp: usize,
-}
 
 #[derive(juniper::GraphQLObject)]
 #[derive(Queryable)]

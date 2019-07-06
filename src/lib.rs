@@ -12,7 +12,7 @@ use bcrypt::hash;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use dotenv::dotenv;
 use jwt::{encode, decode, Header, Validation};
-use models::{Claims, NewUser, User};
+use models::{auth, NewUser, User};
 use std::env;
 use uuid::Uuid;
 
@@ -46,7 +46,7 @@ pub fn create_jwt(id: &str) -> String {
     let since_the_epoch = now.duration_since(std::time::UNIX_EPOCH)
         .expect("Time went backwards");
     let my_claims =
-        Claims { 
+        auth::Claims { 
             id: id.to_owned(),
             sub: "flow.com".to_owned(), 
             company: "flow".to_owned(), 
@@ -56,11 +56,11 @@ pub fn create_jwt(id: &str) -> String {
     encode(&Header::default(), &my_claims, secret.as_ref()).unwrap()
 }
 
-pub fn validate_jwt(token: String) -> jwt::errors::Result<jwt::TokenData<Claims>> {
+pub fn validate_jwt(token: String) -> jwt::errors::Result<jwt::TokenData<auth::Claims>> {
     dotenv().ok();
     let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET not set");
     let validation = Validation { sub: Some("flow.com".to_string()), ..Validation::default() };
-    decode::<models::Claims>(&token, secret.as_ref(), &validation) 
+    decode::<auth::Claims>(&token, secret.as_ref(), &validation) 
 }
 
 pub fn create_user<'a>(conn: &PgConnection, 

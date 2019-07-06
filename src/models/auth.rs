@@ -6,12 +6,21 @@ use chrono::{NaiveDateTime, Utc};
 use crypto::sha2::Sha256;
 use crypto::digest::Digest;
 use rand::Rng;
+use serde_derive::{Serialize, Deserialize};
 use uuid::Uuid;
 
 #[derive(juniper::GraphQLObject)]
 pub struct AuthToken {
 	pub jwt: String,
     pub refresh: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub id: String,
+    pub sub: String,
+    pub company: String,
+    pub exp: usize,
 }
 
 #[derive(Debug)]
