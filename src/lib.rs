@@ -23,7 +23,7 @@ pub fn establish_connection() -> PgConnection {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
+        .expect("DATABASE_URL not set");
     PgConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url))
 }
@@ -39,8 +39,8 @@ pub fn db_pool() -> DbConPool {
 
 pub fn create_jwt(id: &str) -> String {
     dotenv().ok();
-    let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
-    let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT duration not set");
+    let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET not set");
+    let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT_EXPIRE_HR not set");
     let hrs = hrs.parse::<u64>().unwrap();
     let now = std::time::SystemTime::now();
     let since_the_epoch = now.duration_since(std::time::UNIX_EPOCH)
@@ -58,7 +58,7 @@ pub fn create_jwt(id: &str) -> String {
 
 pub fn validate_jwt(token: String) -> jwt::errors::Result<jwt::TokenData<Claims>> {
     dotenv().ok();
-    let secret = std::env::var("JWT_SECRET").expect("JWT secret not set");
+    let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET not set");
     let validation = Validation { sub: Some("flow.com".to_string()), ..Validation::default() };
     decode::<models::Claims>(&token, secret.as_ref(), &validation) 
 }

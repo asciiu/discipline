@@ -1,7 +1,9 @@
 use crate::*;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
+use dotenv::dotenv;
 use juniper::{FieldResult};
+
 
 #[derive(juniper::GraphQLEnum)]
 enum Episode {
@@ -102,13 +104,16 @@ impl Mutation {
                         };
 
                         if remember {
+                            dotenv().ok();
+                            let hrs = std::env::var("REFRESH_EXPIRE_HR").expect("REFRESH_EXPRE_HR not found in env");
+                            let hrs = hrs.parse::<i64>().unwrap();
                             let now = Utc::now();
-                            let expires = (now + Duration::hours(24)).naive_utc();
-                            let fresh_tokie = models::auth::RefreshToken::new(user.id, expires);
-                            tokies.refresh = String::from("refresh token");
+                            let expiration = (now + Duration::hours(hrs)).naive_utc();
+                            let fresh_tokie = models::auth::RefreshToken::new(user.id, expiration);
+                            tokies.refresh = fresh_tokie.to_string();
+                            // TODO persist the freshness
                         }
-                        // TODO create jwt
-                        // TODO create refresh token
+
                         Ok(tokies)
                     }
                     _ => Err("incorrect email/password")?
