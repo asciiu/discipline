@@ -23,20 +23,6 @@ use discipline::*;
 fn main() {
     pretty_env_logger::init();
 
-    // let token = create_jwt("test");
-    // println!("{}: ", token);
-    // let token_data = match validate_jwt(token) {
-    //     Ok(c) => c,
-    //     Err(err) => match *err.kind() {
-    //         jwt::errors::ErrorKind::InvalidToken => panic!("Token is invalid"), // Example on how to handle a specific error
-    //         jwt::errors::ErrorKind::InvalidIssuer => panic!("Issuer is invalid"), // Example on how to handle a specific error
-    //         jwt::errors::ErrorKind::ExpiredSignature => panic!("token expired"),
-    //         _ => panic!("Some other errors"),
-    //     },
-    // };
-    // println!("{:?}", token_data.claims);
-    // println!("{:?}", token_data.header);
-
     let addr = ([127, 0, 0, 1], 3000).into();
     let cx = graphql::Context{pool: db_pool()};
     let context = Arc::new(cx);

@@ -10,20 +10,21 @@ use rand::Rng;
 use serde_derive::{Serialize, Deserialize};
 use uuid::Uuid;
 
-pub fn create_jwt(id: &str) -> String {
+pub fn create_jwt(id: &str, expire_hrs: u64) -> String {
     dotenv().ok();
     let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET not set");
-    let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT_EXPIRE_HR not set");
-    let hrs = hrs.parse::<u64>().unwrap();
+    //let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT_EXPIRE_HR not set");
+    //let hrs = hrs.parse::<u64>().unwrap();
     let now = std::time::SystemTime::now();
     let since_the_epoch = now.duration_since(std::time::UNIX_EPOCH)
         .expect("Time went backwards");
+
     let my_claims =
         Claims { 
             id: id.to_owned(),
             sub: "flow.com".to_owned(), 
             company: "flow".to_owned(), 
-            exp: (since_the_epoch.as_secs() * hrs *  3600) as usize
+            exp: (since_the_epoch.as_secs() * expire_hrs *  3600) as usize
         };
         
     jwt::encode(&jwt::Header::default(), &my_claims, secret.as_ref()).unwrap()
@@ -105,6 +106,37 @@ mod tests {
     use super::*;
     use chrono::Duration;
     use base64::decode;
+
+    #[test]
+    fn le_jwt() {
+        let token = create_jwt("test", 1);
+        let token_data = match validate_jwt(token) {
+            Ok(c) => c,
+            Err(err) => match *err.kind() {
+                jwt::errors::ErrorKind::InvalidToken => panic!("Token is invalid"), // Example on how to handle a specific error
+                jwt::errors::ErrorKind::InvalidIssuer => panic!("Issuer is invalid"), // Example on how to handle a specific error
+                jwt::errors::ErrorKind::ExpiredSignature => panic!("token expired"),
+                _ => panic!("Some other errors"),
+            },
+        };
+        assert_eq!("test", token_data.claims.id);
+        //println!("{:?}", token_data.claims);
+        //println!("{:?}", token_data.header)
+    }
+
+    #[test]
+    fn expired_jwt() {
+        let token = create_jwt("test", 0);
+        let err = validate_jwt(token).expect_err("expected invalid expired token");
+        let is_expired = match *err.kind() {
+            // example of handling specific errors
+            jwt::errors::ErrorKind::InvalidToken => false,
+            jwt::errors::ErrorKind::InvalidIssuer => false, 
+            jwt::errors::ErrorKind::ExpiredSignature => true,
+            _ => false,
+        };
+        assert!(is_expired);
+    }
 
     #[test]
     fn valid_selector() {

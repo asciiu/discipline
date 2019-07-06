@@ -54,7 +54,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Authors
 
-* **Flowii's Castle** 
+* **Club Flowii** 
 
 ## License
 
@@ -62,7 +62,4 @@ Use at your own risk!
 
 ## Acknowledgments
 
-* Me 
-* Myself 
-* I
 * Special thanks to Flowii's Castle and fans

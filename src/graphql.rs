@@ -98,13 +98,16 @@ impl Mutation {
             Some(user) => {
                 match verify(&password, &user.password_hash) {
                     Ok(is_valid) if is_valid => {
+                        dotenv().ok();
+                        let hrs = std::env::var("JWT_EXPIRE_HR").expect("JWT_EXPIRE_HR not set");
+                        let exp = hrs.parse::<u64>().unwrap();
+
                         let mut tokies = models::auth::AuthToken{
-                            jwt: models::auth::create_jwt(&user.id.to_string()),
+                            jwt: models::auth::create_jwt(&user.id.to_string(), exp),
                             refresh: String::from(""),
                         };
 
                         if remember {
-                            dotenv().ok();
                             let hrs = std::env::var("REFRESH_EXPIRE_HR").expect("REFRESH_EXPRE_HR not found in env");
                             let hrs = hrs.parse::<i64>().unwrap();
                             let now = Utc::now();
