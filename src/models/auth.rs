@@ -27,27 +27,23 @@ pub struct RefreshToken {
 
 impl RefreshToken {
     pub fn new(user_id: Uuid, expiration: NaiveDateTime) -> RefreshToken {
-        let nid = Uuid::new_v4(); 
         // selector
         let random_bytes = rand::thread_rng().gen::<[u8; 16]>();
         let selector = encode(&random_bytes);
 
+        // authenticator
         let random_data = rand::thread_rng().gen::<[u8; 32]>();
         let authenticator = encode(&random_data);
         let token_hash = RefreshToken::hash_auth(&authenticator);
 
 	    RefreshToken{
-		    id:     nid,
+		    id: Uuid::new_v4(),
 		    user_id: user_id,
             selector: selector,
             authenticator: authenticator,
             token_hash: token_hash,
             expiration: expiration,
 	    }
-    }
-
-    pub fn tokenize(&self) -> String {
-        format!("{}:{}", encode(&self.selector), self.authenticator)
     }
 
     fn hash_auth(authenticator: &str) -> String {
@@ -62,6 +58,10 @@ impl RefreshToken {
 
         token_hash == token_hash && self.expiration > now
     }
+
+    pub fn to_string(&self) -> String {
+        format!("{}:{}", encode(&self.selector), self.authenticator)
+    }
 }
 
 #[cfg(test)]
@@ -71,19 +71,19 @@ mod tests {
     use base64::decode;
 
     #[test]
-    fn new_refresh() {
+    fn valid_selector() {
         let now = Utc::now();
         let expires = (now + Duration::hours(24)).naive_utc();
         let user_id = Uuid::new_v4();
-        let rt = RefreshToken::new(user_id, expires);
+        let fresh = RefreshToken::new(user_id, expires);
 
-        let refresh: String = rt.tokenize();
-        let sel: Vec<&str> = refresh.split(":").collect();
+        let token: String = fresh.to_string();
+        let data: Vec<&str> = token.split(":").collect();
 
-        let selector: Vec<u8> = decode(&sel[0]).unwrap();
+        let selector: Vec<u8> = decode(&data[0]).unwrap();
         let selector: String = String::from_utf8(selector).unwrap();
 
-        assert_eq!(selector, rt.selector);
+        assert_eq!(selector, fresh.selector);
     }
 
     #[test]
@@ -91,11 +91,12 @@ mod tests {
         let now = Utc::now();
         let expires = (now + Duration::hours(24)).naive_utc();
         let user_id = Uuid::new_v4();
-        let rt = RefreshToken::new(user_id, expires);
-        let token: String = rt.tokenize();
+        let fresh = RefreshToken::new(user_id, expires);
+        let token: String = fresh.to_string();
         let data: Vec<&str> = token.split(":").collect();
+        let authenticator = data[1];
         
-        assert!(rt.is_valid(&data[1]));
+        assert!(fresh.is_valid(&authenticator));
     }
 
     #[test]
@@ -103,10 +104,11 @@ mod tests {
         let now = Utc::now();
         let expired = (now - Duration::hours(1)).naive_utc();
         let user_id = Uuid::new_v4();
-        let rt = RefreshToken::new(user_id, expired);
-        let token: String = rt.tokenize();
+        let fresh = RefreshToken::new(user_id, expired);
+        let token: String = fresh.to_string();
         let data: Vec<&str> = token.split(":").collect();
+        let authenticator = data[1];
         
-        assert!(rt.is_valid(&data[1]) == false);
+        assert!(fresh.is_valid(&authenticator) == false);
     }
 }
