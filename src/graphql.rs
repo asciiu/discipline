@@ -1,9 +1,7 @@
-use juniper::{FieldResult};
-use crate::DbConPool;
-use crate::create_user;
-use crate::models;
+use crate::*;
+use chrono::{Duration, Utc};
 use diesel::prelude::*;
-use discipline::*;
+use juniper::{FieldResult};
 
 #[derive(juniper::GraphQLEnum)]
 enum Episode {
@@ -89,22 +87,25 @@ impl Mutation {
         use bcrypt::verify;
 
         let conn = context.pool.get().unwrap();
-        let user = dsl::users
+        let user_opt = dsl::users
                    .filter(dsl::email.eq(email))
                    .first::<models::User>(&conn)
                    .optional()?;
         
-        match user {
-            Some(u) => {
-                match verify(&password, &u.password_hash) {
+        match user_opt {
+            Some(user) => {
+                match verify(&password, &user.password_hash) {
                     Ok(is_valid) if is_valid => {
                         let mut tokies = models::AuthToken{
-                            jwt: create_jwt(&u.id.to_string()),
+                            jwt: create_jwt(&user.id.to_string()),
                             refresh: String::from(""),
                         };
 
                         if remember {
-                          tokies.refresh = String::from("refresh token");
+                            let now = Utc::now();
+                            let expires = (now + Duration::hours(24)).naive_utc();
+                            let fresh_tokie = models::RefreshToken::new(user.id, expires);
+                            tokies.refresh = String::from("refresh token");
                         }
                         // TODO create jwt
                         // TODO create refresh token
