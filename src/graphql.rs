@@ -99,7 +99,7 @@ impl Mutation {
                 match verify(&password, &user.password_hash) {
                     Ok(is_valid) if is_valid => {
                         let mut tokies = models::auth::AuthToken{
-                            jwt: create_jwt(&user.id.to_string()),
+                            jwt: models::auth::create_jwt(&user.id.to_string()),
                             refresh: String::from(""),
                         };
 
