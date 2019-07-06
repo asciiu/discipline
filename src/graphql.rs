@@ -104,7 +104,7 @@ impl Mutation {
                         if remember {
                             let now = Utc::now();
                             let expires = (now + Duration::hours(24)).naive_utc();
-                            let fresh_tokie = models::RefreshToken::new(user.id, expires);
+                            let fresh_tokie = models::refresh::RefreshToken::new(user.id, expires);
                             tokies.refresh = String::from("refresh token");
                         }
                         // TODO create jwt
