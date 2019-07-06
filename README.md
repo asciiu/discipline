@@ -34,8 +34,9 @@ cargo run
 ```
 
 ## Running the tests
-
-coming soon!
+```
+cargo test -- --nocapture 
+```
 
 ## Deployment
 

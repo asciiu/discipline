@@ -8,6 +8,12 @@ use crypto::digest::Digest;
 use rand::Rng;
 use uuid::Uuid;
 
+#[derive(juniper::GraphQLObject)]
+pub struct AuthToken {
+	pub jwt: String,
+    pub refresh: String,
+}
+
 #[derive(Debug)]
 #[derive(Queryable)]
 pub struct RefreshToken {

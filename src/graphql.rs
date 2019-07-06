@@ -82,7 +82,7 @@ impl Mutation {
         }
     }
 
-    fn login(context: &Context, email: String, password: String, remember: bool) -> FieldResult<models::AuthToken> {
+    fn login(context: &Context, email: String, password: String, remember: bool) -> FieldResult<models::auth::AuthToken> {
         use crate::schema::users::dsl;
         use bcrypt::verify;
 
@@ -96,7 +96,7 @@ impl Mutation {
             Some(user) => {
                 match verify(&password, &user.password_hash) {
                     Ok(is_valid) if is_valid => {
-                        let mut tokies = models::AuthToken{
+                        let mut tokies = models::auth::AuthToken{
                             jwt: create_jwt(&user.id.to_string()),
                             refresh: String::from(""),
                         };
@@ -104,7 +104,7 @@ impl Mutation {
                         if remember {
                             let now = Utc::now();
                             let expires = (now + Duration::hours(24)).naive_utc();
-                            let fresh_tokie = models::refresh::RefreshToken::new(user.id, expires);
+                            let fresh_tokie = models::auth::RefreshToken::new(user.id, expires);
                             tokies.refresh = String::from("refresh token");
                         }
                         // TODO create jwt

@@ -3,7 +3,7 @@ use chrono::{NaiveDateTime};
 use serde_derive::{Serialize, Deserialize};
 use uuid::Uuid;
 
-pub mod refresh;
+pub mod auth;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
@@ -33,10 +33,4 @@ pub struct NewUser<'a> {
     pub email: &'a str,
     pub username: &'a str,
     pub password_hash: &'a str,
-}
-
-#[derive(juniper::GraphQLObject)]
-pub struct AuthToken {
-	pub jwt: String,
-    pub refresh: String,
 }
