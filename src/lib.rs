@@ -10,9 +10,13 @@ pub mod schema;
 use bcrypt::hash;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use dotenv::dotenv;
+use hyper::rt::{Future};
+use hyper::{Body, Response};
 use models::{NewUser, User};
 use std::env;
 use uuid::Uuid;
+
+pub type BoxFut = Box<dyn Future<Item=Response<Body>, Error=hyper::Error> + Send>;
 
 pub type DbConPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbCon = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
